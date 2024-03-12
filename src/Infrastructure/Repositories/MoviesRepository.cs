@@ -5,22 +5,17 @@ using Infrastructure.Adapters;
 
 namespace Infrastructure.Repositories;
 
-public class MoviesRepository : IMoviesRepository
+public class MoviesRepository : BaseRepository<Movie>, IMoviesRepository
 {
-    private readonly IDbConnectionAdapter _dbConnectionAdapter;
-
-    public MoviesRepository(IDbConnectionAdapter dbConnectionAdapter)
+    public MoviesRepository(IDbConnectionAdapter dbConnectionAdapter) : base(dbConnectionAdapter)
     {
-        _dbConnectionAdapter = dbConnectionAdapter;
     }
 
     public async Task<Movie?> CreateAsync(Movie movie, CancellationToken cancellationToken)
     {
         string sql = InsertMovieQuery(movie);
 
-        int rows = await _dbConnectionAdapter.ExecuteNonQueryAsync(sql, cancellationToken);
-
-        if (rows <= 0)
+        if (!await ExecuteCommand(sql, cancellationToken))
         {
             return null;
         }
@@ -42,33 +37,29 @@ public class MoviesRepository : IMoviesRepository
 
         var sql = UpdateMovieQuery(movieFounded);
 
-        int rows = await _dbConnectionAdapter.ExecuteNonQueryAsync(sql, cancellationToken);
-
-        return rows > 0;
+        return await ExecuteCommand(sql, cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(Movie movie, CancellationToken cancellationToken)
     {
         string sql = DeleteByIdQuery(movie);
 
-        int rows = await _dbConnectionAdapter.ExecuteNonQueryAsync(sql, cancellationToken);
-
-        return rows > 0;
+        return await ExecuteCommand(sql, cancellationToken);
     }
 
     public Task<Movie?> GetAsync(Guid id, CancellationToken cancellationToken)
     {
-        return _dbConnectionAdapter.ExecuteReaderSingleAsync<Movie?>(GetByIdQuery(id), MovieMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQuery(GetByIdQuery(id), MovieMapper.MapFromDbResult, cancellationToken);
     }
 
     public Task<List<Movie>> ListAllAsync(CancellationToken cancellationToken)
     {
-        return _dbConnectionAdapter.ExecuteReaderAsync<Movie>(ListAllQuery(), MovieMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQueryList(ListAllQuery(), MovieMapper.MapFromDbResult, cancellationToken);
     }
 
     public Task<Movie?> GetByTitleAsync(string title, CancellationToken cancellationToken)
     {
-        return _dbConnectionAdapter.ExecuteReaderSingleAsync<Movie?>(GetByTitleQuery(title), MovieMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQuery(GetByTitleQuery(title), MovieMapper.MapFromDbResult, cancellationToken);
     }
 
     private static string InsertMovieQuery(Movie movie)

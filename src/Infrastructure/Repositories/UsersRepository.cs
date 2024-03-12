@@ -6,14 +6,12 @@ using Infrastructure.Adapters;
 
 namespace Infrastructure.Repositories;
 
-public class UsersRepository : IUsersRepository
+public class UsersRepository : BaseRepository<User>, IUsersRepository
 {
-    private readonly IDbConnectionAdapter _dbConnectionAdapter;
     private readonly IDateTime _dateTime;
 
-    public UsersRepository(IDbConnectionAdapter dbConnectionAdapter, IDateTime dateTime)
+    public UsersRepository(IDbConnectionAdapter dbConnectionAdapter, IDateTime dateTime) : base(dbConnectionAdapter)
     {
-        _dbConnectionAdapter = dbConnectionAdapter;
         _dateTime = dateTime;
     }
 
@@ -22,9 +20,7 @@ public class UsersRepository : IUsersRepository
         user.CreatedDate = _dateTime.UtcNow;
         string sql = InsertUserQuery(user, user.CreatedDate);
 
-        int rows = await _dbConnectionAdapter.ExecuteNonQueryAsync(sql, cancellationToken);
-
-        if (rows <= 0)
+        if (!await ExecuteCommand(sql, cancellationToken))
         {
             return null;
         }
@@ -46,32 +42,39 @@ public class UsersRepository : IUsersRepository
 
         var sql = UpdateUserQuery(userFounded);
 
-        int rows = await _dbConnectionAdapter.ExecuteNonQueryAsync(sql, cancellationToken);
-
-        return rows > 0;
+        return await ExecuteCommand(sql, cancellationToken);
     }
 
     public Task<User?> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         string sql = SelectUserByIdQuery(id);
 
-        return _dbConnectionAdapter.ExecuteReaderSingleAsync<User?>(sql, UserMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQuery(sql, UserMapper.MapFromDbResult, cancellationToken);
     }
 
-    public async Task<User?> GetByEmailAndPasswordAsync(string email, string passwordHash, CancellationToken cancellationToken)
+    public Task<User?> GetByEmailAndPasswordAsync(string email, string passwordHash, CancellationToken cancellationToken)
     {
         string sql = SelectUserByEmailAndPasswordQuery(email, passwordHash);
 
-        return await _dbConnectionAdapter.ExecuteReaderSingleAsync<User?>(sql, UserMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQuery(sql, UserMapper.MapFromDbResult, cancellationToken);
     }
 
     public Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
     {
         string sql = SelectUserByEmailQuery(email);
 
-        return _dbConnectionAdapter.ExecuteReaderSingleAsync<User?>(sql, UserMapper.MapFromDbResult, cancellationToken);
+        return ExecuteQuery(sql, UserMapper.MapFromDbResult, cancellationToken);
     }
 
+    public Task<List<User>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> DeleteAsync(User entity, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 
     private static string InsertUserQuery(User user, DateTime createdDate)
     {
