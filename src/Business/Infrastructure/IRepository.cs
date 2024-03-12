@@ -2,7 +2,7 @@
 
 namespace Business.Infrastructure;
 
-public interface IRepository<T> where T : BaseModel
+public interface IRepository<T> where T : BaseEntity
 {
     public Task<List<T>> ListAllAsync(CancellationToken cancellationToken);
     public Task<T?> GetAsync(Guid id, CancellationToken cancellationToken);

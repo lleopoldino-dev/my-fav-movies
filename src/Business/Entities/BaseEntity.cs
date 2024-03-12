@@ -1,6 +1,6 @@
 ﻿namespace Business.Models;
 
-public class BaseModel
+public class BaseEntity
 {
     public Guid Id { get; set; }
 }

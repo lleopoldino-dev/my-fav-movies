@@ -1,6 +1,6 @@
 ﻿namespace Business.Models;
 
-public class Movie : BaseModel
+public class Movie : BaseEntity
 {
     public string Title { get; set; }
     public DateTime ReleaseDate { get; set; }

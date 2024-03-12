@@ -1,6 +1,6 @@
 ﻿namespace Business.Models;
 
-public class User: BaseModel
+public class User: BaseEntity
 {
     public string Name { get; set; }
     public string PasswordHash { get; set; }

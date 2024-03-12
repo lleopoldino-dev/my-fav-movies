@@ -3,7 +3,7 @@ using Infrastructure.Adapters;
 
 namespace Infrastructure.Repositories;
 
-public abstract class BaseRepository<T> where T : BaseModel
+public abstract class BaseRepository<T> where T : BaseEntity
 {
     protected readonly IDbConnectionAdapter _dbConnectionAdapter;
 
