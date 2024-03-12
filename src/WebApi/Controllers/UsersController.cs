@@ -61,7 +61,7 @@ public class UsersController : ControllerBase
     {
         var user = new User { Id = Guid.NewGuid(), Name = createUserModel.Name, Email = createUserModel.Email, PasswordHash = createUserModel.Password };
         var validation = await _userService.ValidateUserAsync(user, cancellationToken);
-        if (validation.Errors.Any())
+        if (validation.Errors.Count != 0)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
         }
@@ -98,7 +98,7 @@ public class UsersController : ControllerBase
 
         var user = new User { Id = Guid.NewGuid(), Name = updateUserModel.Name, Email = updateUserModel.Email, PasswordHash = updateUserModel.Password };
         var validation = await _userService.ValidateUserAsync(user, cancellationToken);
-        if (validation.Errors.Any())
+        if (validation.Errors.Count != 0)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
         }

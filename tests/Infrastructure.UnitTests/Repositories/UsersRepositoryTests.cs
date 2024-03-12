@@ -62,7 +62,7 @@ public class UsersRepositoryTests
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, User?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var usersRepository = new UsersRepository(mockDbConnectionAdapter.Object, dateTime.Object);
         var user = new User { Id = Guid.NewGuid(), Name = "UserName", Email = "user@example.com", PasswordHash = "password", CreatedDate = DateTime.UtcNow };
@@ -138,7 +138,7 @@ public class UsersRepositoryTests
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, User?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var usersRepository = new UsersRepository(mockDbConnectionAdapter.Object, dateTime.Object);
         var userId = Guid.NewGuid();
@@ -183,7 +183,7 @@ public class UsersRepositoryTests
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, User?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var usersRepository = new UsersRepository(mockDbConnectionAdapter.Object, dateTime.Object);
         var userEmail = "noexistingmail@mail.com";

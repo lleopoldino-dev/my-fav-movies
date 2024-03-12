@@ -52,7 +52,7 @@ public class MoviesRepositoryTest
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, Movie?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Movie)null);
+            .ReturnsAsync(null as Movie);
 
         var moviesRepository = new MoviesRepository(mockDbConnectionAdapter.Object);
         var movie = new Movie { Id = Guid.NewGuid(), Title = "Test Movie", Category = "Test Category", ReleaseDate = DateTime.UtcNow };
@@ -157,7 +157,7 @@ public class MoviesRepositoryTest
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, Movie?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Movie)null);
+            .ReturnsAsync(null as Movie);
 
         var moviesRepository = new MoviesRepository(mockDbConnectionAdapter.Object);
         var movieId = Guid.NewGuid();
@@ -196,7 +196,7 @@ public class MoviesRepositoryTest
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, Movie>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Movie>());
+            .ReturnsAsync([]);
 
         var moviesRepository = new MoviesRepository(mockDbConnectionAdapter.Object);
 
@@ -214,8 +214,9 @@ public class MoviesRepositoryTest
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, Movie>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Movie>() { new Movie { Id = Guid.NewGuid(), Title = "Test Movie 1", Category = "Test Category", ReleaseDate = DateTime.UtcNow },
-                                              new Movie { Id = Guid.NewGuid(), Title = "Test Movie2", Category = "Test Category", ReleaseDate = DateTime.UtcNow } });
+            .ReturnsAsync([ new Movie { Id = Guid.NewGuid(), Title = "Test Movie 1", Category = "Test Category", ReleaseDate = DateTime.UtcNow },
+                            new Movie { Id = Guid.NewGuid(), Title = "Test Movie2", Category = "Test Category", ReleaseDate = DateTime.UtcNow } 
+                          ]);
 
         var moviesRepository = new MoviesRepository(mockDbConnectionAdapter.Object);
 
@@ -233,7 +234,7 @@ public class MoviesRepositoryTest
         var mockDbConnectionAdapter = new Mock<IDbConnectionAdapter>();
         mockDbConnectionAdapter
             .Setup(adapter => adapter.ExecuteReaderSingleAsync(It.IsAny<string>(), It.IsAny<Func<Dictionary<string, object>, Movie?>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Movie)null);
+            .ReturnsAsync(null as Movie);
 
         var moviesRepository = new MoviesRepository(mockDbConnectionAdapter.Object);
         var movieTitle = "Non-existent Movie";

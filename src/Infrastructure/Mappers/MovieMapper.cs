@@ -6,7 +6,7 @@ public static class MovieMapper
 {
     public static Movie MapFromDbResult(Dictionary<string, object> data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
 
         return new Movie
         {

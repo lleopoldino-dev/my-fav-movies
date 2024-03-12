@@ -36,7 +36,7 @@ public class MovieServiceTests
 
         var mockRepository = new Mock<IMoviesRepository>();
         mockRepository.Setup(repo => repo.GetByTitleAsync(newMovie.Title, cancellationToken))
-            .ReturnsAsync((Movie)null);
+            .ReturnsAsync(null as Movie);
 
         var movieService = new MovieService(mockRepository.Object);
 

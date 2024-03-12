@@ -41,7 +41,7 @@ public class UserServiceTests
 
         var mockRepository = new Mock<IUsersRepository>();
         mockRepository.Setup(repo => repo.GetByEmailAndPasswordAsync(email, password, cancellationToken))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var userService = new UserService(mockRepository.Object);
 
@@ -85,7 +85,7 @@ public class UserServiceTests
 
         var mockRepository = new Mock<IUsersRepository>();
         mockRepository.Setup(repo => repo.CreateAsync(user, cancellationToken))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var userService = new UserService(mockRepository.Object);
 
@@ -171,7 +171,7 @@ public class UserServiceTests
 
         var mockRepository = new Mock<IUsersRepository>();
         mockRepository.Setup(repo => repo.GetAsync(userId, cancellationToken))
-            .ReturnsAsync((User)null);
+            .ReturnsAsync(null as User);
 
         var userService = new UserService(mockRepository.Object);
 

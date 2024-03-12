@@ -31,7 +31,7 @@ public class UserMapperTests
     public void MapFromDbResult_NullData_ThrowsException()
     {
         // Arrange
-        Dictionary<string, object> data = null;
+        Dictionary<string, object>? data = null;
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => UserMapper.MapFromDbResult(data));

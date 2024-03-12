@@ -29,7 +29,7 @@ public class MoviesController : ControllerBase
     {
         var movie = new Movie { Id = Guid.NewGuid(), Title = createMovieModel.Title, Category = createMovieModel.Category, ReleaseDate = createMovieModel.ReleaseDate };
         var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
-        if (validationResult.Errors.Any()) 
+        if (validationResult.Errors.Count != 0) 
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
         }
@@ -90,7 +90,7 @@ public class MoviesController : ControllerBase
 
         var movie = new Movie { Id = Guid.NewGuid(), Title = updateMovieModel.Title, Category = updateMovieModel.Category, ReleaseDate = updateMovieModel.ReleaseDate };
         var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
-        if (validationResult.Errors.Any())
+        if (validationResult.Errors.Count != 0)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
         }
