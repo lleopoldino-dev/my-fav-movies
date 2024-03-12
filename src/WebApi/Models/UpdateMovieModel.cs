@@ -2,17 +2,7 @@
 
 namespace WebApi.Models;
 
-public class UpdateMovieModel
-{
-    [Required]
-    public Guid MovieId { get; set; }
-
-    [Required]
-    public string Title { get; set; }
-
-    [Required]
-    public string Category { get; set; }
-
-    [Required]
-    public DateTime ReleaseDate { get; set; }
-}
+public record UpdateMovieModel([property: Required] Guid MovieId, 
+                               [property: Required] string Title, 
+                               [property: Required] string Category, 
+                               [property: Required] DateTime ReleaseDate);

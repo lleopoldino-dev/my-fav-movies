@@ -24,7 +24,7 @@ public class MoviesControllerTests
     public async Task CreateMovie_ValidModel_ReturnsCreatedMovie()
     {
         // Arrange
-        var createMovieModel = new CreateMovieModel { Title = "Test Movie", Category = "Test Category", ReleaseDate = new DateTime(1990, 1, 1) };
+        var createMovieModel = new CreateMovieModel("Test Movie", "Test Category", new DateTime(1990, 1, 1));
         var cancellationToken = CancellationToken.None;
         var movie = new Movie { Id = Guid.NewGuid(), Title = "Test Movie", Category = "Test Category", ReleaseDate = new DateTime(1990, 1, 1) };
 
@@ -50,7 +50,7 @@ public class MoviesControllerTests
     public async Task CreateMovie_InvalidModel_ReturnsValidationProblem()
     {
         // Arrange
-        var createMovieModel = new CreateMovieModel { Title = "Already existing movie", Category = "Test Category", ReleaseDate = new DateTime(1990, 1, 1) };
+        var createMovieModel = new CreateMovieModel("Already existing movie", "Test Category", new DateTime(1990, 1, 1));
         var cancellationToken = CancellationToken.None;
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
@@ -70,7 +70,7 @@ public class MoviesControllerTests
     public async Task CreateMovie_FailedCreation_ReturnsProblemDetails()
     {
         // Arrange
-        var createMovieModel = new CreateMovieModel { Title = "Test Movie", Category = "Test Category", ReleaseDate = new DateTime(1990, 1, 1) };
+        var createMovieModel = new CreateMovieModel("Test Movie", "Test Category", new DateTime(1990, 1, 1));
         var cancellationToken = CancellationToken.None;
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
@@ -159,13 +159,7 @@ public class MoviesControllerTests
     public async Task UpdateMovie_ExistingMovie_SuccessfullyUpdated_ReturnsNoContent()
     {
         // Arrange
-        var updateMovieModel = new UpdateMovieModel
-        {
-            MovieId = Guid.NewGuid(),
-            Title = "Updated Title",
-            Category = "Updated Category",
-            ReleaseDate = DateTime.Now
-        };
+        var updateMovieModel = new UpdateMovieModel(Guid.NewGuid(), "Updated Title", "Updated Category", DateTime.Now);
         var cancellationToken = CancellationToken.None;
 
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(updateMovieModel.MovieId, cancellationToken))
@@ -191,13 +185,7 @@ public class MoviesControllerTests
     public async Task UpdateMovie_ExistingMovie_FailedToUpdate_ReturnsProblemDetails()
     {
         // Arrange
-        var updateMovieModel = new UpdateMovieModel
-        {
-            MovieId = Guid.NewGuid(),
-            Title = "Updated Title",
-            Category = "Updated Category",
-            ReleaseDate = DateTime.Now
-        };
+        var updateMovieModel = new UpdateMovieModel(Guid.NewGuid(), "Updated Title", "Updated Category", DateTime.Now);
         var cancellationToken = CancellationToken.None;
 
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(updateMovieModel.MovieId, cancellationToken))
@@ -223,13 +211,7 @@ public class MoviesControllerTests
     public async Task UpdateMovie_NonExistingMovie_ValidModel_ReturnsCreatedMovie()
     {
         // Arrange
-        var updateMovieModel = new UpdateMovieModel
-        {
-            MovieId = Guid.NewGuid(),
-            Title = "New Title",
-            Category = "New Category",
-            ReleaseDate = DateTime.Now
-        };
+        var updateMovieModel = new UpdateMovieModel(Guid.NewGuid(), "New Title", "New Category", DateTime.Now);
         var cancellationToken = CancellationToken.None;
 
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(updateMovieModel.MovieId, cancellationToken))
@@ -256,13 +238,7 @@ public class MoviesControllerTests
     public async Task UpdateMovie_NonExistingMovie_InvalidModel_ReturnsValidationProblem()
     {
         // Arrange
-        var updateMovieModel = new UpdateMovieModel
-        {
-            MovieId = Guid.NewGuid(),
-            Title = "New Title",
-            Category = "New Category",
-            ReleaseDate = DateTime.Now
-        };
+        var updateMovieModel = new UpdateMovieModel(Guid.NewGuid(), "New Title", "New Category", DateTime.Now);
         var cancellationToken = CancellationToken.None;
 
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(updateMovieModel.MovieId, cancellationToken))

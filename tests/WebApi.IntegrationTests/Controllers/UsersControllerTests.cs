@@ -108,7 +108,7 @@ public class UsersControllerTests
     public async Task CreateUser_ValidModel_ReturnsCreatedUser()
     {
         // Arrange
-        var createUserModel = new CreateUserModel { Name = "User", Email = "user@example.com", Password = "password" };
+        var createUserModel = new CreateUserModel("User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
         var createdUser = new User { Id = Guid.NewGuid(), Name = createUserModel.Name, Email = createUserModel.Email, PasswordHash = createUserModel.Password };
 
@@ -128,7 +128,7 @@ public class UsersControllerTests
     public async Task CreateUser_FailedCreation_ReturnsProblemDetails()
     {
         // Arrange
-        var createUserModel = new CreateUserModel { Name = "User", Email = "user@example.com", Password = "password" };
+        var createUserModel = new CreateUserModel("User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
 
         var controller = SetupControllerWithCreateUserAsync(null, new Business.Services.ValidationResult() { Errors = ["Failed"] }, cancellationToken);
@@ -156,13 +156,7 @@ public class UsersControllerTests
     public async Task UpdateUser_ExistingUser_SuccessfullyUpdated_ReturnsNoContent()
     {
         // Arrange
-        var updateUserModel = new UpdateUserModel
-        {
-            UserId = Guid.NewGuid(),
-            Name = "User",
-            Email = "user@example.com",
-            Password = "password"
-        };
+        var updateUserModel = new UpdateUserModel(Guid.NewGuid(), "User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
 
         _userServiceMock.Setup(service => service.FindById(updateUserModel.UserId, cancellationToken))
@@ -185,13 +179,7 @@ public class UsersControllerTests
     public async Task UpdateUser_ExistingUser_FailedToUpdate_ReturnsProblemDetails()
     {
         // Arrange
-        var updateUserModel = new UpdateUserModel
-        {
-            UserId = Guid.NewGuid(),
-            Name = "User",
-            Email = "user@example.com",
-            Password = "password"
-        };
+        var updateUserModel = new UpdateUserModel(Guid.NewGuid(), "User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
 
         _userServiceMock.Setup(service => service.FindById(updateUserModel.UserId, cancellationToken))
@@ -214,13 +202,7 @@ public class UsersControllerTests
     public async Task UpdateUser_NonExistingUser_SuccessfullyCreated_ReturnsCreated()
     {
         // Arrange
-        var updateUserModel = new UpdateUserModel
-        {
-            UserId = Guid.NewGuid(),
-            Name = "User",
-            Email = "user@example.com",
-            Password = "password"
-        };
+        var updateUserModel = new UpdateUserModel(Guid.NewGuid(), "User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
         var createdUser = new User { Id = updateUserModel.UserId };
 
@@ -249,13 +231,7 @@ public class UsersControllerTests
     public async Task UpdateUser_NonExistingUser_FailedToCreate_ReturnsValidationProblem()
     {
         // Arrange
-        var updateUserModel = new UpdateUserModel
-        {
-            UserId = Guid.NewGuid(),
-            Name = "User",
-            Email = "user@example.com",
-            Password = "password"
-        };
+        var updateUserModel = new UpdateUserModel(Guid.NewGuid(), "User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
 
         _userServiceMock.Setup(service => service.FindById(updateUserModel.UserId, cancellationToken))

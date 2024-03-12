@@ -2,14 +2,4 @@
 
 namespace WebApi.Models;
 
-public class CreateMovieModel
-{
-    [Required]
-    public string Title { get; set; }
-
-    [Required]
-    public string Category { get; set; }
-
-    [Required]
-    public DateTime ReleaseDate { get; set; }
-}
+public record CreateMovieModel([property: Required] string Title, [property: Required] string Category, [property: Required] DateTime ReleaseDate);
