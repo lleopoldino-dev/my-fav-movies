@@ -5,7 +5,7 @@ namespace Infrastructure.Repositories;
 
 public abstract class BaseRepository<T> where T : BaseEntity
 {
-    protected readonly IDbConnectionAdapter _dbConnectionAdapter;
+    private readonly IDbConnectionAdapter _dbConnectionAdapter;
 
     protected BaseRepository(IDbConnectionAdapter dbConnectionAdapter)
     {
