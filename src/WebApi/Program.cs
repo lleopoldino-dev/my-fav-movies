@@ -1,7 +1,7 @@
 using Business;
 using Infrastructure;
 using Microsoft.OpenApi.Models;
-using WebApi.Extensions;
+using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,11 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApi.Helpers;
 
-namespace WebApi.Extensions;
+namespace WebApi;
 
-public static class AuthenticationServiceCollectionExtension
+public static class ConfigureServices
 {
+    public static IServiceCollection AddWebApiServices(this IServiceCollection service, IConfiguration configuration)
+    {
+        service.AddSingleton<IJwtHelper>(new JwtHelper(GetJwtKeyFromConfig(configuration)));
+
+        return service;
+    }
+
     public static IServiceCollection AddAuthenticationSetup(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(options =>
@@ -19,7 +27,7 @@ public static class AuthenticationServiceCollectionExtension
             {
                 ValidIssuer = configuration["Jwt:Issuer"],
                 ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetJwtKeyFromConfig(configuration))),
                 ValidateIssuer = true,
                 ValidateAudience = false,
                 ValidateLifetime = true,
@@ -28,5 +36,17 @@ public static class AuthenticationServiceCollectionExtension
         });
 
         return services;
+    }
+
+    private static string GetJwtKeyFromConfig(IConfiguration configuration)
+    {
+        string? jwtKey = configuration["Jwt:Key"];
+
+        if (jwtKey is null)
+        {
+            throw new ArgumentException(nameof(jwtKey));
+        }
+
+        return jwtKey;
     }
 }

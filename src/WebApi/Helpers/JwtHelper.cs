@@ -6,24 +6,29 @@ using System.Text;
 
 namespace WebApi.Helpers;
 
-public static class JwtHelper
+public class JwtHelper : IJwtHelper
 {
-    private const string TokenSecret = "Simple key example, do not use it in production!";
+    private readonly string _tokenSecret;
 
-    public static string GetAccessToken(User user, DateTime expires)
+    public JwtHelper(string tokenSecret)
     {
-        var key = Encoding.ASCII.GetBytes(TokenSecret);
+        _tokenSecret = tokenSecret;
+    }
+
+    public string GetAccessToken(User user, DateTime expires)
+    {
+        var key = Encoding.ASCII.GetBytes(_tokenSecret);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
             {
-            new Claim("Id", Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("UserId", user.Id.ToString())
-        }),
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("UserId", user.Id.ToString())
+            }),
             Audience = "http://localhost",
             Issuer = "http://localhost",
             Expires = expires,

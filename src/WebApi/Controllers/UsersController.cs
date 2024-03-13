@@ -14,11 +14,13 @@ public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IDateTime _datetime;
+    private readonly IJwtHelper _jwtHelper;
 
-    public UsersController(IUserService userService, IDateTime dateTime)
+    public UsersController(IUserService userService, IDateTime dateTime, IJwtHelper jwtHelper)
     {
         _userService = userService;
         _datetime = dateTime;
+        _jwtHelper = jwtHelper;
     }
 
     [HttpPost("login")]
@@ -33,7 +35,7 @@ public class UsersController : ControllerBase
             return TypedResults.Problem(detail: "User not found or password is incorrect");
         }
 
-        return TypedResults.Ok(JwtHelper.GetAccessToken(user, _datetime.UtcNow.AddMinutes(5)));
+        return TypedResults.Ok(_jwtHelper.GetAccessToken(user, _datetime.UtcNow.AddMinutes(5)));
     }
 
     [Authorize]
