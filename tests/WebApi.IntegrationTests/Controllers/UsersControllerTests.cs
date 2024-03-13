@@ -13,12 +13,12 @@ namespace WebApi.UnitTests.Controllers;
 public class UsersControllerTests
 {
     private readonly Mock<IUserService> _userServiceMock;
-    private readonly Mock<IJwtHelper> _jwtHelperMock;
+    private readonly IJwtHelper _jwtHelper;
 
     public UsersControllerTests()
     {
         _userServiceMock = new();
-        _jwtHelperMock = new();
+        _jwtHelper = new JwtHelper("Secret phrase here, just an example of this, should be passed somehow =D");
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.LoginUserAsync(email, password, cancellationToken))
             .ReturnsAsync(user);
 
-        var controller = new UsersController(_userServiceMock.Object, dateTime.Object, _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, dateTime.Object, _jwtHelper);
 
         // Act
         var result = await controller.Login(email, password, cancellationToken);
@@ -57,7 +57,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.LoginUserAsync(email, password, cancellationToken))
             .ReturnsAsync(null as User);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.Login(email, password, cancellationToken);
@@ -78,7 +78,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.FindById(userId, cancellationToken))
             .ReturnsAsync(user);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.GetUser(userId, cancellationToken);
@@ -98,7 +98,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.FindById(userId, cancellationToken))
             .ReturnsAsync(null as User);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.GetUser(userId, cancellationToken);
@@ -151,7 +151,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
             .ReturnsAsync(createdUser);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
         return controller;
     }
 
@@ -168,7 +168,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.UpdateAsync(It.IsAny<User>(), cancellationToken))
             .ReturnsAsync(true);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.UpdateUser(updateUserModel, cancellationToken);
@@ -191,7 +191,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.UpdateAsync(It.IsAny<User>(), cancellationToken))
             .ReturnsAsync(false);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.UpdateUser(updateUserModel, cancellationToken);
@@ -218,7 +218,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
             .ReturnsAsync(createdUser);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.UpdateUser(updateUserModel, cancellationToken);
@@ -246,7 +246,7 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
             .ReturnsAsync(null as User);
 
-        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelperMock.Object);
+        var controller = new UsersController(_userServiceMock.Object, Mock.Of<IDateTime>(), _jwtHelper);
 
         // Act
         var result = await controller.UpdateUser(updateUserModel, cancellationToken);
