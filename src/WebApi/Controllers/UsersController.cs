@@ -15,7 +15,7 @@ public class UsersController : MainController
     private readonly IUserService _userService;
     private readonly IJwtHelper _jwtHelper;
 
-    public UsersController(IUserService userService, IDateTime dateTime, IJwtHelper jwtHelper)
+    public UsersController(IDateTime dateTime, IUserService userService, IJwtHelper jwtHelper)
         : base(dateTime)
     {
         _userService = userService;
@@ -29,6 +29,7 @@ public class UsersController : MainController
     public async Task<IResult> Login(string email, string password, CancellationToken cancellationToken)
     {
         var user = await _userService.LoginUserAsync(email, password, cancellationToken);
+
         if (user == null)
         {
             return ProblemResult("User not found or password is incorrect");
