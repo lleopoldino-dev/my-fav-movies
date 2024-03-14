@@ -41,7 +41,7 @@ public class UserService : IUserService
 
         if (findUserWithEmail != null)
         {
-            validation.ValidationErrors.Add("A user with same email already exists");
+            validation.Errors.Add("A user with same email already exists");
         }
 
         return validation;

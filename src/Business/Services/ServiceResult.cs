@@ -2,9 +2,8 @@
 
 namespace Business.Services;
 
-public class ServiceResult<T> : IServiceResult where T : BaseEntity
+public class ServiceResult<T> : BaseServiceResult, IServiceResult where T : BaseEntity
 {
-    public List<string> Errors { get; set; } = new List<string>();
     public T? Entity { get; set; }
 
     public ServiceResult(string error)
@@ -20,14 +19,22 @@ public class ServiceResult<T> : IServiceResult where T : BaseEntity
     public ServiceResult() { }
 }
 
-public class ServiceValidationResult : IServiceResult
+public class ServiceValidationResult : BaseServiceResult, IServiceResult
 {
-    public List<string> ValidationErrors { get; set; } = new List<string>();
-
     public ServiceValidationResult(string error)
     {
-        ValidationErrors.Add(error);
+        Errors.Add(error);
     }
 
     public ServiceValidationResult() { }
+}
+
+public abstract class BaseServiceResult
+{
+    public List<string> Errors { get; set; } = new List<string>();
+
+    public bool HasErrors()
+    {
+        return Errors.Count > 0;
+    }
 }

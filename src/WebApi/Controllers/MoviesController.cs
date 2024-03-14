@@ -137,12 +137,12 @@ public class MoviesController : MainController
 
         if (result is ServiceValidationResult)
         {
-            return ValidationProblemResult(((ServiceValidationResult)result).ValidationErrors.ToArray());
+            return ValidationProblemResult((ServiceValidationResult)result);
         }
 
-        if (((ServiceResult<Movie>)result).Errors.Count > 0)
+        if (result is ServiceResult<Movie> && result.HasErrors())
         {
-            return ProblemResult(((ServiceResult<Movie>)result).Errors.First());
+            return ProblemResult((ServiceResult<Movie>)result);
         }
 
         return CreatedResult($"movies/{((ServiceResult<Movie>)result).Entity!.Id}", ((ServiceResult<Movie>)result).Entity!);

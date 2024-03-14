@@ -25,7 +25,7 @@ public class MovieServiceTests
         var validationResult = await movieService.ValidateMovieAsync(existingMovie, cancellationToken) as ServiceValidationResult;
 
         // Assert
-        Assert.Contains("A movie with same title already exists", validationResult.ValidationErrors);
+        Assert.Contains("A movie with same title already exists", validationResult.Errors);
     }
 
     [Fact]
@@ -45,6 +45,6 @@ public class MovieServiceTests
         var validationResult = await movieService.ValidateMovieAsync(newMovie, cancellationToken) as ServiceValidationResult;
 
         // Assert
-        Assert.Empty(validationResult.ValidationErrors);
+        Assert.Empty(validationResult.Errors);
     }
 }

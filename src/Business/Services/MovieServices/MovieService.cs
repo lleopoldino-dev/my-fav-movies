@@ -16,7 +16,7 @@ public class MovieService : IMovieService
     {
         var validationResult = await ValidateMovieAsync(movie, cancellationToken) as ServiceValidationResult;
 
-        if(validationResult!.ValidationErrors.Count > 0)
+        if(validationResult!.Errors.Count > 0)
         {
             return validationResult;
         }
@@ -38,7 +38,7 @@ public class MovieService : IMovieService
 
         if (movieSameTitle != null)
         {
-            validation.ValidationErrors.Add("A movie with same title already exists");
+            validation.Errors.Add("A movie with same title already exists");
         }
 
         return validation;

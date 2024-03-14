@@ -1,4 +1,6 @@
 ﻿using Business;
+using Business.Models;
+using Business.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -19,6 +21,11 @@ public abstract class MainController : ControllerBase
         return TypedResults.Problem(detail: detail);
     }
 
+    protected IResult ProblemResult<TEntity>(ServiceResult<TEntity> serviceResult) where TEntity : BaseEntity
+    {
+        return ProblemResult(serviceResult.Errors.First());
+    }
+
     protected IResult ValidationProblemResult(Dictionary<string, string[]> errors)
     {
         return TypedResults.ValidationProblem(errors);
@@ -27,6 +34,11 @@ public abstract class MainController : ControllerBase
     protected IResult ValidationProblemResult(string[] errors)
     {
         return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", errors } });
+    }
+
+    protected IResult ValidationProblemResult(ServiceValidationResult validationResult)
+    {
+        return ValidationProblemResult(validationResult.Errors.ToArray());
     }
 
     protected IResult NotFoundResult()

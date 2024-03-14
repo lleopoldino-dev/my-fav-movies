@@ -2,5 +2,5 @@
 
 public interface IServiceResult
 {
-
+    public bool HasErrors();
 }
