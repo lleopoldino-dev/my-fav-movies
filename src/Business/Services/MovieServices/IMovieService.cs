@@ -4,5 +4,6 @@ namespace Business.Services.MovieServices;
 
 public interface IMovieService
 {
-    Task<ServiceResult> ValidateMovie(Movie movie, CancellationToken cancellationToken);
+    Task<IServiceResult> ValidateMovieAsync(Movie movie, CancellationToken cancellationToken);
+    Task<IServiceResult> CreateMovieAsync(Movie movie, CancellationToken cancellationToken);
 }

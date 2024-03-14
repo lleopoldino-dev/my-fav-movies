@@ -1,6 +1,7 @@
 using Business;
 using Business.Infrastructure;
 using Business.Models;
+using Business.Services;
 using Business.Services.MovieServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +30,13 @@ public class MoviesController : MainController
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IResult> CreateMovie(CreateMovieModel createMovieModel, CancellationToken cancellationToken)
     {
-        return await HandleMovieCreationAsync(new Movie { 
-                                                Id = Guid.NewGuid(), 
-                                                Title = createMovieModel.Title, 
-                                                Category = createMovieModel.Category, 
-                                                ReleaseDate = createMovieModel.ReleaseDate }, cancellationToken);
+        return await HandleMovieCreationAsync(new Movie
+        {
+            Id = Guid.NewGuid(),
+            Title = createMovieModel.Title,
+            Category = createMovieModel.Category,
+            ReleaseDate = createMovieModel.ReleaseDate
+        }, cancellationToken);
     }
 
     [HttpDelete("{id}")]
@@ -130,19 +133,18 @@ public class MoviesController : MainController
 
     private async Task<IResult> HandleMovieCreationAsync(Movie movie, CancellationToken cancellationToken)
     {
-        var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
-        if (validationResult.Errors.Count != 0)
+        var result = await _movieService.CreateMovieAsync(movie, cancellationToken);
+
+        if (result is ServiceValidationResult)
         {
-            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
+            return ValidationProblemResult(((ServiceValidationResult)result).ValidationErrors.ToArray());
         }
 
-        var createdUser = await _moviesRepository.CreateAsync(movie, cancellationToken);
-
-        if (createdUser == null)
+        if (((ServiceResult<Movie>)result).Errors.Count > 0)
         {
-            return ProblemResult("Failed creating movie");
+            return ProblemResult(((ServiceResult<Movie>)result).Errors.First());
         }
 
-        return CreatedResult($"movies/{createdUser.Id}", createdUser);
+        return CreatedResult($"movies/{((ServiceResult<Movie>)result).Entity!.Id}", ((ServiceResult<Movie>)result).Entity!);
     }
 }

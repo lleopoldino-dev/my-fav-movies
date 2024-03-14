@@ -34,14 +34,14 @@ public class UserService : IUserService
         return _usersRepository.GetAsync(id, cancellationToken);
     }
 
-    public async Task<ServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
+    public async Task<IServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
     {
-        var validation = new ServiceResult();
+        var validation = new ServiceValidationResult();
         var findUserWithEmail = await _usersRepository.FindByEmailAsync(user.Email, cancellationToken);
 
         if (findUserWithEmail != null)
         {
-            validation.Errors.Add("A user with same email already exists");
+            validation.ValidationErrors.Add("A user with same email already exists");
         }
 
         return validation;

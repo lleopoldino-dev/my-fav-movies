@@ -1,5 +1,6 @@
 ﻿using Business.Infrastructure;
 using Business.Models;
+using Business.Services;
 using Business.Services.MovieServices;
 using Moq;
 
@@ -21,10 +22,10 @@ public class MovieServiceTests
         var movieService = new MovieService(mockRepository.Object);
 
         // Act
-        var validationResult = await movieService.ValidateMovie(existingMovie, cancellationToken);
+        var validationResult = await movieService.ValidateMovieAsync(existingMovie, cancellationToken) as ServiceValidationResult;
 
         // Assert
-        Assert.Contains("A movie with same title already exists", validationResult.Errors);
+        Assert.Contains("A movie with same title already exists", validationResult.ValidationErrors);
     }
 
     [Fact]
@@ -41,9 +42,9 @@ public class MovieServiceTests
         var movieService = new MovieService(mockRepository.Object);
 
         // Act
-        var validationResult = await movieService.ValidateMovie(newMovie, cancellationToken);
+        var validationResult = await movieService.ValidateMovieAsync(newMovie, cancellationToken) as ServiceValidationResult;
 
         // Assert
-        Assert.Empty(validationResult.Errors);
+        Assert.Empty(validationResult.ValidationErrors);
     }
 }

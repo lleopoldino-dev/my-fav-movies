@@ -1,5 +1,6 @@
 ﻿using Business;
 using Business.Models;
+using Business.Services;
 using Business.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -110,10 +111,10 @@ public class UsersController : MainController
 
     private async Task<IResult> HandleUserCreationAsync(User user, CancellationToken cancellationToken) 
     {
-        var validation = await _userService.ValidateUserAsync(user, cancellationToken);
-        if (validation.Errors.Count != 0)
+        var validation = await _userService.ValidateUserAsync(user, cancellationToken) as ServiceValidationResult;
+        if (validation.ValidationErrors.Count != 0)
         {
-            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
+            return ValidationProblemResult(validation.ValidationErrors.ToArray());
         }
 
         var createdUser = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);

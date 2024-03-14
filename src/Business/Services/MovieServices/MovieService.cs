@@ -12,14 +12,33 @@ public class MovieService : IMovieService
         _moviesRepository = moviesRepository;
     }
 
-    public async Task<ServiceResult> ValidateMovie(Movie movie, CancellationToken cancellationToken)
+    public async Task<IServiceResult> CreateMovieAsync(Movie movie, CancellationToken cancellationToken)
     {
-        var validation = new ServiceResult();
+        var validationResult = await ValidateMovieAsync(movie, cancellationToken) as ServiceValidationResult;
+
+        if(validationResult!.ValidationErrors.Count > 0)
+        {
+            return validationResult;
+        }
+
+        var createdMovie = await _moviesRepository.CreateAsync(movie, cancellationToken);
+
+        if (createdMovie == null)
+        {
+            return new ServiceResult<Movie>("Failed creating movie");
+        }
+
+        return new ServiceResult<Movie>(createdMovie);
+    }
+
+    public async Task<IServiceResult> ValidateMovieAsync(Movie movie, CancellationToken cancellationToken)
+    {
+        var validation = new ServiceValidationResult();
         var movieSameTitle = await _moviesRepository.GetByTitleAsync(movie.Title, cancellationToken);
 
         if (movieSameTitle != null)
         {
-            validation.Errors.Add("A movie with same title already exists");
+            validation.ValidationErrors.Add("A movie with same title already exists");
         }
 
         return validation;

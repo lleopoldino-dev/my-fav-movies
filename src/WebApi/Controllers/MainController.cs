@@ -24,6 +24,11 @@ public abstract class MainController : ControllerBase
         return TypedResults.ValidationProblem(errors);
     }
 
+    protected IResult ValidationProblemResult(string[] errors)
+    {
+        return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", errors } });
+    }
+
     protected IResult NotFoundResult()
     {
         return TypedResults.NotFound();

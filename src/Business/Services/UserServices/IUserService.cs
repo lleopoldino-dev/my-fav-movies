@@ -8,5 +8,5 @@ public interface IUserService
     Task<User?> FindById(Guid id, CancellationToken cancellationToken);
     Task<User?> LoginUserAsync(string username, string password, CancellationToken cancellationToken);
     Task<bool> UpdateAsync(User user, CancellationToken cancellationToken);
-    Task<ServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken);
+    Task<IServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken);
 }
