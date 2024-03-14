@@ -1,6 +1,6 @@
 ﻿using Business.Infrastructure;
 using Business.Models;
-using Business.Services;
+using Business.Services.UserServices;
 using Moq;
 
 namespace Business.UnitTests.Services;

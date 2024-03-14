@@ -1,6 +1,6 @@
 ﻿using Business;
 using Business.Models;
-using Business.Services;
+using Business.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Helpers;
@@ -50,7 +50,7 @@ public class UsersController : MainController
         {
             return NotFoundResult();
         }
-        
+
         return OkResult(user);
     }
 
@@ -61,21 +61,12 @@ public class UsersController : MainController
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IResult> CreateUser(CreateUserModel createUserModel, CancellationToken cancellationToken)
     {
-        var user = new User { Id = Guid.NewGuid(), Name = createUserModel.Name, Email = createUserModel.Email, PasswordHash = createUserModel.Password };
-        var validation = await _userService.ValidateUserAsync(user, cancellationToken);
-        if (validation.Errors.Count != 0)
-        {
-            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
-        }
-
-        var createdUser = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);
-
-        if (createdUser == null)
-        {
-            return ProblemResult("Failed creating user");
-        }
-
-        return CreatedResult($"/{createdUser.Id}", createdUser);
+        return await HandleUserCreationAsync(new User { 
+                                                Id = Guid.NewGuid(), 
+                                                Name = createUserModel.Name, 
+                                                Email = createUserModel.Email, 
+                                                PasswordHash = createUserModel.Password 
+                                            }, cancellationToken);
     }
 
     [HttpPut("")]
@@ -87,18 +78,38 @@ public class UsersController : MainController
     public async Task<IResult> UpdateUser(UpdateUserModel updateUserModel, CancellationToken cancellationToken)
     {
         var findedUser = await _userService.FindById(updateUserModel.UserId, cancellationToken);
-        if (findedUser != null)
-        {
-            var updatedUser = new User { Id = updateUserModel.UserId, Name = updateUserModel.Name, Email = updateUserModel.Email, PasswordHash = updateUserModel.Password };
-            if (await _userService.UpdateAsync(updatedUser, cancellationToken))
-            {
-                return NoContentResult();
-            }
 
-            return ProblemResult("Failed updating user");
+        if (findedUser == null)
+        {
+            return await HandleUserCreationAsync(new User
+            {
+                Id = Guid.NewGuid(),
+                Name = updateUserModel.Name,
+                Email = updateUserModel.Email,
+                PasswordHash = updateUserModel.Password
+            }, cancellationToken);
         }
 
-        var user = new User { Id = Guid.NewGuid(), Name = updateUserModel.Name, Email = updateUserModel.Email, PasswordHash = updateUserModel.Password };
+        return await HandleUserUpdateAsync(new User { 
+                                            Id = updateUserModel.UserId, 
+                                            Name = updateUserModel.Name, 
+                                            Email = updateUserModel.Email, 
+                                            PasswordHash = updateUserModel.Password 
+                                          }, cancellationToken);
+    }
+
+    private async Task<IResult> HandleUserUpdateAsync(User user, CancellationToken cancellationToken)
+    {
+        if (await _userService.UpdateAsync(user, cancellationToken))
+        {
+            return NoContentResult();
+        }
+
+        return ProblemResult("Failed updating user");
+    }
+
+    private async Task<IResult> HandleUserCreationAsync(User user, CancellationToken cancellationToken) 
+    {
         var validation = await _userService.ValidateUserAsync(user, cancellationToken);
         if (validation.Errors.Count != 0)
         {
@@ -112,6 +123,6 @@ public class UsersController : MainController
             return ProblemResult("Failed creating user");
         }
 
-        return CreatedResult($"/{createdUser.Id}", createdUser);
+        return CreatedResult($"users/{createdUser.Id}", createdUser);
     }
 }

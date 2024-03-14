@@ -1,7 +1,7 @@
 using Business;
 using Business.Infrastructure;
 using Business.Models;
-using Business.Services;
+using Business.Services.MovieServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
@@ -29,21 +29,11 @@ public class MoviesController : MainController
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IResult> CreateMovie(CreateMovieModel createMovieModel, CancellationToken cancellationToken)
     {
-        var movie = new Movie { Id = Guid.NewGuid(), Title = createMovieModel.Title, Category = createMovieModel.Category, ReleaseDate = createMovieModel.ReleaseDate };
-        var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
-        if (validationResult.Errors.Count != 0) 
-        {
-            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
-        }
-
-        var createdMovie = await CreateMovieAsync(movie, cancellationToken);
-
-        if (createdMovie == null)
-        {
-            return ProblemResult("Failed creating movie");
-        }
-
-        return CreatedResult($"movies/{createdMovie.Id}", createdMovie);
+        return await HandleMovieCreationAsync(new Movie { 
+                                                Id = Guid.NewGuid(), 
+                                                Title = createMovieModel.Title, 
+                                                Category = createMovieModel.Category, 
+                                                ReleaseDate = createMovieModel.ReleaseDate }, cancellationToken);
     }
 
     [HttpDelete("{id}")]
@@ -79,32 +69,21 @@ public class MoviesController : MainController
     public async Task<IResult> UpdateMovie(UpdateMovieModel updateMovieModel, CancellationToken cancellationToken)
     {
         var findedMovie = await _moviesRepository.GetAsync(updateMovieModel.MovieId, cancellationToken);
-        if (findedMovie != null)
+        if (findedMovie == null)
         {
-            var updatedMovie = new Movie { Id = updateMovieModel.MovieId, Title = updateMovieModel.Title, Category = updateMovieModel.Category, ReleaseDate = updateMovieModel.ReleaseDate };
-            if (await _moviesRepository.UpdateAsync(updatedMovie, cancellationToken))
-            {
-                return NoContentResult();
-            }
-
-            return ProblemResult("Failed updating movie");
+            return await HandleMovieCreationAsync(new Movie { 
+                                                    Id = Guid.NewGuid(), 
+                                                    Title = updateMovieModel.Title, 
+                                                    Category = updateMovieModel.Category, 
+                                                    ReleaseDate = updateMovieModel.ReleaseDate 
+                                                  }, cancellationToken);
         }
 
-        var movie = new Movie { Id = Guid.NewGuid(), Title = updateMovieModel.Title, Category = updateMovieModel.Category, ReleaseDate = updateMovieModel.ReleaseDate };
-        var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
-        if (validationResult.Errors.Count != 0)
-        {
-            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
-        }
-
-        var createdUser = await CreateMovieAsync(movie, cancellationToken);
-
-        if (createdUser == null)
-        {
-            return ProblemResult("Failed creating movie");
-        }
-
-        return CreatedResult($"/{createdUser.Id}", createdUser);
+        return await HandleMovieUpdateAsync(new Movie { 
+                                            Id = updateMovieModel.MovieId, 
+                                            Title = updateMovieModel.Title, 
+                                            Category = updateMovieModel.Category, 
+                                            ReleaseDate = updateMovieModel.ReleaseDate }, cancellationToken);
     }
 
     [AllowAnonymous]
@@ -139,10 +118,31 @@ public class MoviesController : MainController
         return OkResult(result);
     }
 
-    private async Task<Movie?> CreateMovieAsync(Movie movie, CancellationToken cancellationToken)
+    private async Task<IResult> HandleMovieUpdateAsync(Movie movie, CancellationToken cancellationToken)
     {
-        var result = await _moviesRepository.CreateAsync(movie, cancellationToken);
+        if (await _moviesRepository.UpdateAsync(movie, cancellationToken))
+        {
+            return NoContentResult();
+        }
 
-        return result;
+        return ProblemResult("Failed updating movie");
+    }
+
+    private async Task<IResult> HandleMovieCreationAsync(Movie movie, CancellationToken cancellationToken)
+    {
+        var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
+        if (validationResult.Errors.Count != 0)
+        {
+            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
+        }
+
+        var createdUser = await _moviesRepository.CreateAsync(movie, cancellationToken);
+
+        if (createdUser == null)
+        {
+            return ProblemResult("Failed creating movie");
+        }
+
+        return CreatedResult($"movies/{createdUser.Id}", createdUser);
     }
 }

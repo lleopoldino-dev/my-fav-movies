@@ -1,7 +1,7 @@
 ﻿using Business.Infrastructure;
 using Business.Models;
 
-namespace Business.Services;
+namespace Business.Services.UserServices;
 
 public class UserService : IUserService
 {
@@ -34,9 +34,9 @@ public class UserService : IUserService
         return _usersRepository.GetAsync(id, cancellationToken);
     }
 
-    public async Task<ValidationResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
+    public async Task<ServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
     {
-        var validation = new ValidationResult();
+        var validation = new ServiceResult();
         var findUserWithEmail = await _usersRepository.FindByEmailAsync(user.Email, cancellationToken);
 
         if (findUserWithEmail != null)

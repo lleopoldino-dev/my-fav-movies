@@ -2,6 +2,7 @@
 using Business.Infrastructure;
 using Business.Models;
 using Business.Services;
+using Business.Services.MovieServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
@@ -32,7 +33,7 @@ public class MoviesControllerTests
         var movie = new Movie { Id = Guid.NewGuid(), Title = "Test Movie", Category = "Test Category", ReleaseDate = new DateTime(1990, 1, 1) };
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ServiceResult());
 
         _moviesRepositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(movie);
@@ -57,7 +58,7 @@ public class MoviesControllerTests
         var cancellationToken = CancellationToken.None;
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult { Errors = { "Error message" } });
+            .ReturnsAsync(new ServiceResult { Errors = { "Error message" } });
 
         var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
@@ -77,7 +78,7 @@ public class MoviesControllerTests
         var cancellationToken = CancellationToken.None;
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ServiceResult());
 
         _moviesRepositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(null as Movie);
@@ -172,7 +173,7 @@ public class MoviesControllerTests
             .ReturnsAsync(true);
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ServiceResult());
 
         var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
@@ -198,7 +199,7 @@ public class MoviesControllerTests
             .ReturnsAsync(false);
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ServiceResult());
 
         var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
@@ -224,7 +225,7 @@ public class MoviesControllerTests
             .ReturnsAsync(new Movie { Id = Guid.NewGuid() });
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ServiceResult());
 
         var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
@@ -248,7 +249,7 @@ public class MoviesControllerTests
             .ReturnsAsync(null as Movie);
 
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
-            .ReturnsAsync(new ValidationResult { Errors = { "Error message" } });
+            .ReturnsAsync(new ServiceResult { Errors = { "Error message" } });
 
         var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 

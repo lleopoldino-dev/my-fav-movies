@@ -1,4 +1,6 @@
 ﻿using Business.Services;
+using Business.Services.MovieServices;
+using Business.Services.UserServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Business;

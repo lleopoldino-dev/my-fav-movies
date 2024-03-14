@@ -1,7 +1,7 @@
 ﻿using Business.Infrastructure;
 using Business.Models;
 
-namespace Business.Services;
+namespace Business.Services.MovieServices;
 
 public class MovieService : IMovieService
 {
@@ -12,12 +12,12 @@ public class MovieService : IMovieService
         _moviesRepository = moviesRepository;
     }
 
-    public async Task<ValidationResult> ValidateMovie(Movie movie, CancellationToken cancellationToken)
+    public async Task<ServiceResult> ValidateMovie(Movie movie, CancellationToken cancellationToken)
     {
-        var validation = new ValidationResult();
+        var validation = new ServiceResult();
         var movieSameTitle = await _moviesRepository.GetByTitleAsync(movie.Title, cancellationToken);
 
-        if (movieSameTitle != null) 
+        if (movieSameTitle != null)
         {
             validation.Errors.Add("A movie with same title already exists");
         }
