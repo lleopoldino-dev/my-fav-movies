@@ -14,11 +14,13 @@ public class UsersControllerTests
 {
     private readonly Mock<IUserService> _userServiceMock;
     private readonly IJwtHelper _jwtHelper;
+    private readonly Mock<IDateTime> _dateTimeMock;
 
     public UsersControllerTests()
     {
         _userServiceMock = new();
         _jwtHelper = new JwtHelper("Secret phrase here, just an example of this, should be passed somehow =D");
+        _dateTimeMock = new();
     }
 
     [Fact]

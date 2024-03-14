@@ -10,16 +10,15 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController : ControllerBase
+public class UsersController : MainController
 {
     private readonly IUserService _userService;
-    private readonly IDateTime _datetime;
     private readonly IJwtHelper _jwtHelper;
 
     public UsersController(IUserService userService, IDateTime dateTime, IJwtHelper jwtHelper)
+        : base(dateTime)
     {
         _userService = userService;
-        _datetime = dateTime;
         _jwtHelper = jwtHelper;
     }
 
@@ -32,10 +31,10 @@ public class UsersController : ControllerBase
         var user = await _userService.LoginUserAsync(email, password, cancellationToken);
         if (user == null)
         {
-            return TypedResults.Problem(detail: "User not found or password is incorrect");
+            return ProblemResult("User not found or password is incorrect");
         }
 
-        return TypedResults.Ok(_jwtHelper.GetAccessToken(user, _datetime.UtcNow.AddMinutes(5)));
+        return OkResult(_jwtHelper.GetAccessToken(user, _datetime.UtcNow.AddMinutes(5)));
     }
 
     [Authorize]
@@ -48,10 +47,10 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            return TypedResults.NotFound();
+            return NotFoundResult();
         }
-
-        return TypedResults.Ok(user);
+        
+        return OkResult(user);
     }
 
     [HttpPost("")]
@@ -65,17 +64,17 @@ public class UsersController : ControllerBase
         var validation = await _userService.ValidateUserAsync(user, cancellationToken);
         if (validation.Errors.Count != 0)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
+            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
         }
 
         var createdUser = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);
 
         if (createdUser == null)
         {
-            return TypedResults.Problem(detail: "Failed creating user");
+            return ProblemResult("Failed creating user");
         }
 
-        return TypedResults.Created($"/{createdUser.Id}", createdUser);
+        return CreatedResult($"/{createdUser.Id}", createdUser);
     }
 
     [HttpPut("")]
@@ -92,26 +91,26 @@ public class UsersController : ControllerBase
             var updatedUser = new User { Id = updateUserModel.UserId, Name = updateUserModel.Name, Email = updateUserModel.Email, PasswordHash = updateUserModel.Password };
             if (await _userService.UpdateAsync(updatedUser, cancellationToken))
             {
-                return TypedResults.NoContent();
+                return NoContentResult();
             }
 
-            return TypedResults.Problem(detail: "Failed updating user");
+            return ProblemResult("Failed updating user");
         }
 
         var user = new User { Id = Guid.NewGuid(), Name = updateUserModel.Name, Email = updateUserModel.Email, PasswordHash = updateUserModel.Password };
         var validation = await _userService.ValidateUserAsync(user, cancellationToken);
         if (validation.Errors.Count != 0)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
+            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validation.Errors.ToArray() } });
         }
 
         var createdUser = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);
 
         if (createdUser == null)
         {
-            return TypedResults.Problem(detail: "Failed creating user");
+            return ProblemResult("Failed creating user");
         }
 
-        return TypedResults.Created($"/{createdUser.Id}", createdUser);
+        return CreatedResult($"/{createdUser.Id}", createdUser);
     }
 }

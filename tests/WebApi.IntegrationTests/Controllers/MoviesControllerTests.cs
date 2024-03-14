@@ -1,4 +1,5 @@
-﻿using Business.Infrastructure;
+﻿using Business;
+using Business.Infrastructure;
 using Business.Models;
 using Business.Services;
 using Microsoft.AspNetCore.Http;
@@ -13,11 +14,13 @@ public class MoviesControllerTests
 {
     private readonly Mock<IMovieService> _movieServiceMock;
     private readonly Mock<IMoviesRepository> _moviesRepositoryMock;
+    private readonly Mock<IDateTime> _dateTimeMock;
 
     public MoviesControllerTests()
     {
         _movieServiceMock = new();
         _moviesRepositoryMock = new();
+        _dateTimeMock = new();
     }
 
     [Fact]
@@ -34,7 +37,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(movie);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.CreateMovie(createMovieModel, cancellationToken);
@@ -56,7 +59,7 @@ public class MoviesControllerTests
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(new ValidationResult { Errors = { "Error message" } });
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.CreateMovie(createMovieModel, cancellationToken);
@@ -79,7 +82,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(null as Movie);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.CreateMovie(createMovieModel, cancellationToken);
@@ -102,7 +105,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.DeleteAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(true);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.DeleteMovie(movieId, cancellationToken);
@@ -122,7 +125,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(movieId, cancellationToken))
             .ReturnsAsync(null as Movie);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.DeleteMovie(movieId, cancellationToken);
@@ -145,7 +148,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.DeleteAsync(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(false);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.DeleteMovie(movieId, cancellationToken);
@@ -171,7 +174,7 @@ public class MoviesControllerTests
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(new ValidationResult());
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.UpdateMovie(updateMovieModel, cancellationToken);
@@ -197,7 +200,7 @@ public class MoviesControllerTests
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(new ValidationResult());
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.UpdateMovie(updateMovieModel, cancellationToken);
@@ -223,7 +226,7 @@ public class MoviesControllerTests
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(new ValidationResult());
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.UpdateMovie(updateMovieModel, cancellationToken);
@@ -247,7 +250,7 @@ public class MoviesControllerTests
         _movieServiceMock.Setup(service => service.ValidateMovie(It.IsAny<Movie>(), cancellationToken))
             .ReturnsAsync(new ValidationResult { Errors = { "Error message" } });
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, _movieServiceMock.Object);
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, _movieServiceMock.Object);
 
         // Act
         var result = await controller.UpdateMovie(updateMovieModel, cancellationToken);
@@ -272,7 +275,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.ListAllAsync(cancellationToken))
             .ReturnsAsync(movies);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.GetAll(cancellationToken);
@@ -295,7 +298,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.ListAllAsync(cancellationToken))
             .ReturnsAsync(null as List<Movie>);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.GetAll(cancellationToken);
@@ -316,7 +319,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(movieId, cancellationToken))
             .ReturnsAsync(movie);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.Get(movieId, cancellationToken);
@@ -340,7 +343,7 @@ public class MoviesControllerTests
         _moviesRepositoryMock.Setup(repo => repo.GetAsync(movieId, cancellationToken))
             .ReturnsAsync(null as Movie);
 
-        var controller = new MoviesController(_moviesRepositoryMock.Object, Mock.Of<IMovieService>());
+        var controller = new MoviesController(_dateTimeMock.Object, _moviesRepositoryMock.Object, Mock.Of<IMovieService>());
 
         // Act
         var result = await controller.Get(movieId, cancellationToken);

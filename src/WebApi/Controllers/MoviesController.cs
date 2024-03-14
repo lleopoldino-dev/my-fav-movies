@@ -1,3 +1,4 @@
+using Business;
 using Business.Infrastructure;
 using Business.Models;
 using Business.Services;
@@ -9,12 +10,13 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class MoviesController : ControllerBase
+public class MoviesController : MainController
 {
     private readonly IMoviesRepository _moviesRepository;
     private readonly IMovieService _movieService;
 
-    public MoviesController(IMoviesRepository moviesRepository, IMovieService movieService)
+    public MoviesController(IDateTime dateTime, IMoviesRepository moviesRepository, IMovieService movieService)
+        : base(dateTime)
     {
         _moviesRepository = moviesRepository;
         _movieService = movieService;
@@ -31,17 +33,17 @@ public class MoviesController : ControllerBase
         var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
         if (validationResult.Errors.Count != 0) 
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
+            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
         }
 
         var createdMovie = await CreateMovieAsync(movie, cancellationToken);
 
         if (createdMovie == null)
         {
-            return TypedResults.Problem(detail: "Failed creating movie");
+            return ProblemResult("Failed creating movie");
         }
 
-        return TypedResults.Created($"movies/{createdMovie.Id}", createdMovie);
+        return CreatedResult($"movies/{createdMovie.Id}", createdMovie);
     }
 
     [HttpDelete("{id}")]
@@ -55,17 +57,17 @@ public class MoviesController : ControllerBase
 
         if (movie == null)
         {
-            return TypedResults.NotFound();
+            return NotFoundResult();
         }
 
         var result = await _moviesRepository.DeleteAsync(movie, cancellationToken);
 
         if (!result)
         {
-            return TypedResults.Problem(detail: "Failed creating movie");
+            return ProblemResult("Failed creating movie");
         }
 
-        return TypedResults.NoContent();
+        return NoContentResult();
     }
 
     [HttpPut("")]
@@ -82,27 +84,27 @@ public class MoviesController : ControllerBase
             var updatedMovie = new Movie { Id = updateMovieModel.MovieId, Title = updateMovieModel.Title, Category = updateMovieModel.Category, ReleaseDate = updateMovieModel.ReleaseDate };
             if (await _moviesRepository.UpdateAsync(updatedMovie, cancellationToken))
             {
-                return TypedResults.NoContent();
+                return NoContentResult();
             }
 
-            return TypedResults.Problem(detail: "Failed updating movie");
+            return ProblemResult("Failed updating movie");
         }
 
         var movie = new Movie { Id = Guid.NewGuid(), Title = updateMovieModel.Title, Category = updateMovieModel.Category, ReleaseDate = updateMovieModel.ReleaseDate };
         var validationResult = await _movieService.ValidateMovie(movie, cancellationToken);
         if (validationResult.Errors.Count != 0)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
+            return ValidationProblemResult(new Dictionary<string, string[]> { { "Errors", validationResult.Errors.ToArray() } });
         }
 
         var createdUser = await CreateMovieAsync(movie, cancellationToken);
 
         if (createdUser == null)
         {
-            return TypedResults.Problem(detail: "Failed creating movie");
+            return ProblemResult("Failed creating movie");
         }
 
-        return TypedResults.Created($"/{createdUser.Id}", createdUser);
+        return CreatedResult($"/{createdUser.Id}", createdUser);
     }
 
     [AllowAnonymous]
@@ -115,10 +117,10 @@ public class MoviesController : ControllerBase
 
         if (result == null)
         {
-            return TypedResults.NotFound();
+            return NotFoundResult();
         }
 
-        return TypedResults.Ok(result);
+        return OkResult(result);
     }
 
     [Authorize]
@@ -131,10 +133,10 @@ public class MoviesController : ControllerBase
 
         if (result == null)
         {
-            return TypedResults.NotFound();
+            return NotFoundResult();
         }
 
-        return TypedResults.Ok(result);
+        return OkResult(result);
     }
 
     private async Task<Movie?> CreateMovieAsync(Movie movie, CancellationToken cancellationToken)
