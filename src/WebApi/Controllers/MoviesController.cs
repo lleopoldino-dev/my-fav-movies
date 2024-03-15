@@ -72,6 +72,7 @@ public class MoviesController : MainController
     public async Task<IResult> UpdateMovie(UpdateMovieModel updateMovieModel, CancellationToken cancellationToken)
     {
         var findedMovie = await _moviesRepository.GetAsync(updateMovieModel.MovieId, cancellationToken);
+
         if (findedMovie == null)
         {
             return await HandleMovieCreationAsync(new Movie { 
@@ -135,14 +136,9 @@ public class MoviesController : MainController
     {
         var result = await _movieService.CreateMovieAsync(movie, cancellationToken);
 
-        if (result is ServiceValidationResult)
+        if (result.HasErrors())
         {
-            return ValidationProblemResult((ServiceValidationResult)result);
-        }
-
-        if (result is ServiceResult<Movie> && result.HasErrors())
-        {
-            return ProblemResult((ServiceResult<Movie>)result);
+            return ErrorProblemResult<Movie>(result);
         }
 
         return CreatedResult($"movies/{((ServiceResult<Movie>)result).Entity!.Id}", ((ServiceResult<Movie>)result).Entity!);

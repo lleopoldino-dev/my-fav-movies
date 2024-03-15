@@ -117,8 +117,9 @@ public class UsersControllerTests
         var createUserModel = new CreateUserModel("User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
         var createdUser = new User { Id = Guid.NewGuid(), Name = createUserModel.Name, Email = createUserModel.Email, PasswordHash = createUserModel.Password };
+        var serviceResult = new ServiceResult<User>() { Entity = createdUser };
 
-        var controller = SetupControllerWithCreateUserAsync(createdUser, new ServiceValidationResult(), cancellationToken);
+        var controller = SetupControllerWithCreateUserAsync(serviceResult, cancellationToken);
 
         // Act
         var result = await controller.CreateUser(createUserModel, cancellationToken);
@@ -137,7 +138,7 @@ public class UsersControllerTests
         var createUserModel = new CreateUserModel("User", "user@example.com", "password");
         var cancellationToken = CancellationToken.None;
 
-        var controller = SetupControllerWithCreateUserAsync(null, new ServiceValidationResult() { Errors = ["Failed"] }, cancellationToken);
+        var controller = SetupControllerWithCreateUserAsync(new ServiceValidationResult() { Errors = ["Failed"] }, cancellationToken);
 
         // Act
         var result = await controller.CreateUser(createUserModel, cancellationToken);
@@ -147,12 +148,10 @@ public class UsersControllerTests
         Assert.Equal(StatusCodes.Status400BadRequest, problemResult.StatusCode);
     }
 
-    private UsersController SetupControllerWithCreateUserAsync(User? createdUser, IServiceResult validationResult, CancellationToken cancellationToken)
+    private UsersController SetupControllerWithCreateUserAsync(IServiceResult serviceResult, CancellationToken cancellationToken)
     {
-        _userServiceMock.Setup(service => service.ValidateUserAsync(It.IsAny<User>(), cancellationToken))
-            .ReturnsAsync(validationResult);
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
-            .ReturnsAsync(createdUser);
+            .ReturnsAsync(serviceResult);
 
         var controller = new UsersController(_dateTimeMock.Object, _userServiceMock.Object, _jwtHelper);
         return controller;
@@ -212,14 +211,11 @@ public class UsersControllerTests
         var cancellationToken = CancellationToken.None;
         var createdUser = new User { Id = updateUserModel.UserId };
 
-        _userServiceMock.Setup(service => service.ValidateUserAsync(It.IsAny<User>(), cancellationToken))
-            .ReturnsAsync(new ServiceValidationResult());
-
         _userServiceMock.Setup(service => service.FindById(updateUserModel.UserId, cancellationToken))
             .ReturnsAsync(null as User);
 
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
-            .ReturnsAsync(createdUser);
+            .ReturnsAsync(new ServiceResult<User>(createdUser));
 
         var controller = new UsersController(_dateTimeMock.Object, _userServiceMock.Object, _jwtHelper);
 
@@ -243,11 +239,8 @@ public class UsersControllerTests
         _userServiceMock.Setup(service => service.FindById(updateUserModel.UserId, cancellationToken))
             .ReturnsAsync(null as User);
 
-        _userServiceMock.Setup(service => service.ValidateUserAsync(It.IsAny<User>(), cancellationToken))
-            .ReturnsAsync(new ServiceValidationResult() { Errors = ["User with same email already exists"] });
-
         _userServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
-            .ReturnsAsync(null as User);
+            .ReturnsAsync(new ServiceValidationResult() { Errors = ["User with same email already exists"] });
 
         var controller = new UsersController(_dateTimeMock.Object, _userServiceMock.Object, _jwtHelper);
 

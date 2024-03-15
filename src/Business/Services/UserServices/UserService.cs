@@ -17,11 +17,18 @@ public class UserService : IUserService
         return await _usersRepository.GetByEmailAndPasswordAsync(email, HashPassword(password), cancellationToken);
     }
 
-    public async Task<User?> CreateAsync(User user, string password, CancellationToken cancellationToken)
+    public async Task<IServiceResult> CreateAsync(User user, string password, CancellationToken cancellationToken)
     {
+        var validationResult = await ValidateUserAsync(user, cancellationToken);
+
+        if (validationResult.HasErrors())
+        {
+            return validationResult;
+        }
+
         user.PasswordHash = HashPassword(password);
 
-        return await _usersRepository.CreateAsync(user, cancellationToken);
+        return await GetUserCreationResultAsync(user, password, cancellationToken);
     }
 
     public Task<bool> UpdateAsync(User user, CancellationToken cancellationToken)
@@ -34,7 +41,7 @@ public class UserService : IUserService
         return _usersRepository.GetAsync(id, cancellationToken);
     }
 
-    public async Task<IServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
+    private async Task<IServiceResult> ValidateUserAsync(User user, CancellationToken cancellationToken)
     {
         var validation = new ServiceValidationResult();
         var findUserWithEmail = await _usersRepository.FindByEmailAsync(user.Email, cancellationToken);
@@ -45,6 +52,18 @@ public class UserService : IUserService
         }
 
         return validation;
+    }
+
+    private async Task<IServiceResult> GetUserCreationResultAsync(User user, string password, CancellationToken cancellationToken)
+    {
+        var createdUser = await _usersRepository.CreateAsync(user, cancellationToken);
+
+        if (createdUser is null)
+        {
+            return new ServiceResult<User>("Failed creating User");
+        }
+
+        return new ServiceResult<User>(createdUser);
     }
 
     private static string HashPassword(string password)

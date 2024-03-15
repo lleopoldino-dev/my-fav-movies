@@ -41,6 +41,16 @@ public abstract class MainController : ControllerBase
         return ValidationProblemResult(validationResult.Errors.ToArray());
     }
 
+    protected IResult ErrorProblemResult<TEntity>(IServiceResult result) where TEntity : BaseEntity
+    {
+        if (result is ServiceValidationResult)
+        {
+            return ValidationProblemResult((ServiceValidationResult)result);
+        }
+
+        return ProblemResult((ServiceResult<TEntity>)result);
+    }
+
     protected IResult NotFoundResult()
     {
         return TypedResults.NotFound();

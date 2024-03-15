@@ -111,19 +111,13 @@ public class UsersController : MainController
 
     private async Task<IResult> HandleUserCreationAsync(User user, CancellationToken cancellationToken) 
     {
-        var validation = await _userService.ValidateUserAsync(user, cancellationToken) as ServiceValidationResult;
-        if (validation.Errors.Count != 0)
+        var result = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);
+
+        if (result.HasErrors())
         {
-            return ValidationProblemResult(validation.Errors.ToArray());
+            return ErrorProblemResult<User>(result);
         }
 
-        var createdUser = await _userService.CreateAsync(user, user.PasswordHash, cancellationToken);
-
-        if (createdUser == null)
-        {
-            return ProblemResult("Failed creating user");
-        }
-
-        return CreatedResult($"users/{createdUser.Id}", createdUser);
+        return CreatedResult($"users/{((ServiceResult<User>)result).Entity!.Id}", ((ServiceResult<User>)result).Entity!);
     }
 }

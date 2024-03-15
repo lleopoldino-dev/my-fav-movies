@@ -1,7 +1,9 @@
 ﻿using Business.Infrastructure;
 using Business.Models;
+using Business.Services;
 using Business.Services.UserServices;
 using Moq;
+using System.ComponentModel.DataAnnotations;
 
 namespace Business.UnitTests.Services;
 
@@ -59,6 +61,7 @@ public class UserServiceTests
         // Arrange
         var user = new User { Email = "newuser@example.com" };
         var password = "password";
+        var serviceResult = new ServiceResult<User>(user);
         var cancellationToken = CancellationToken.None;
 
         var mockRepository = new Mock<IUsersRepository>();
@@ -71,8 +74,33 @@ public class UserServiceTests
         var result = await userService.CreateAsync(user, password, cancellationToken);
 
         // Assert
-        Assert.Equal(user, result);
+        Assert.Equal(serviceResult.Entity, ((ServiceResult<User>)result).Entity);
         mockRepository.Verify(repo => repo.CreateAsync(user, cancellationToken), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateAsync_NewUser_Returns_ValidationError_Failed_Creating()
+    {
+        // Arrange
+        var user = new User { Email = "newuser@example.com" };
+        var password = "password";
+        var cancellationToken = CancellationToken.None;
+
+        var mockRepository = new Mock<IUsersRepository>();
+        mockRepository.Setup(repo => repo.FindByEmailAsync(user.Email, cancellationToken))
+            .ReturnsAsync(user);
+        mockRepository.Setup(repo => repo.CreateAsync(user, cancellationToken))
+            .ReturnsAsync(null as User);
+
+        var userService = new UserService(mockRepository.Object);
+
+        // Act
+        var result = await userService.CreateAsync(user, password, cancellationToken) as ServiceValidationResult;
+
+        // Assert
+        Assert.Contains("A user with same email already exists", result.Errors);
+        mockRepository.Verify(repo => repo.FindByEmailAsync(user.Email, cancellationToken), Times.Once);
+        mockRepository.Verify(repo => repo.CreateAsync(user, cancellationToken), Times.Never);
     }
 
     [Fact]
@@ -93,7 +121,7 @@ public class UserServiceTests
         var result = await userService.CreateAsync(user, password, cancellationToken);
 
         // Assert
-        Assert.Null(result);
+        Assert.Null(((ServiceResult<User>)result).Entity);
         mockRepository.Verify(repo => repo.CreateAsync(user, cancellationToken), Times.Once);
     }
 

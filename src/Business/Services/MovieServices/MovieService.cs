@@ -14,24 +14,17 @@ public class MovieService : IMovieService
 
     public async Task<IServiceResult> CreateMovieAsync(Movie movie, CancellationToken cancellationToken)
     {
-        var validationResult = await ValidateMovieAsync(movie, cancellationToken) as ServiceValidationResult;
+        var validationResult = await ValidateAsync(movie, cancellationToken);
 
-        if(validationResult!.Errors.Count > 0)
+        if (validationResult.HasErrors())
         {
             return validationResult;
         }
 
-        var createdMovie = await _moviesRepository.CreateAsync(movie, cancellationToken);
-
-        if (createdMovie == null)
-        {
-            return new ServiceResult<Movie>("Failed creating movie");
-        }
-
-        return new ServiceResult<Movie>(createdMovie);
+        return await GetMovieCreationResultAsync(movie, cancellationToken);
     }
 
-    public async Task<IServiceResult> ValidateMovieAsync(Movie movie, CancellationToken cancellationToken)
+    private async Task<IServiceResult> ValidateAsync(Movie movie, CancellationToken cancellationToken)
     {
         var validation = new ServiceValidationResult();
         var movieSameTitle = await _moviesRepository.GetByTitleAsync(movie.Title, cancellationToken);
@@ -42,5 +35,17 @@ public class MovieService : IMovieService
         }
 
         return validation;
+    }
+
+    private async Task<IServiceResult> GetMovieCreationResultAsync(Movie movie, CancellationToken cancellationToken)
+    {
+        var createdMovie = await _moviesRepository.CreateAsync(movie, cancellationToken);
+
+        if (createdMovie == null)
+        {
+            return new ServiceResult<Movie>("Failed creating movie");
+        }
+
+        return new ServiceResult<Movie>(createdMovie);
     }
 }
