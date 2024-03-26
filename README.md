@@ -85,3 +85,8 @@ If the creation is succeded, run `docker-compose up -d` to run docker-compose fi
 If it's the first time running, the system will download postgres image and load it with preconfigured tables found in init.sql file.
 
 Access `http://localhost:8000/swagger` to view application swagger page and have fun!
+
+
+### Minikube Configuration
+
+Check out README file located on `./kubernetes` folder for more instructions.

@@ -1,0 +1,63 @@
+# Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-persistent-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M
+---
+
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-persistent-volume-claim
+#            - ../init.sql:/docker-entrypoint-initdb.d/init.sql
+      containers:
+        - name: postgresdb
+          image: postgres:latest
+          imagePullPolicy: IfNotPresent 
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: myfavapp
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+---
+
+# Cluster IP Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  type: NodePort # Remove this type if you don't want the service to be accessed from outside.
+  selector:
+    app: postgresdb
+  ports:
+    - port: 5432
+      targetPort: 5432

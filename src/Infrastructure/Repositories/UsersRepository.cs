@@ -18,6 +18,7 @@ public class UsersRepository : BaseRepository<User>, IUsersRepository
     public async Task<User?> CreateAsync(User user, CancellationToken cancellationToken)
     {
         user.CreatedDate = _dateTime.UtcNow;
+
         string sql = InsertUserQuery(user, user.CreatedDate);
 
         if (!await ExecuteCommand(sql, cancellationToken))
