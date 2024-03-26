@@ -20,6 +20,7 @@ Endpoints that require authentication will be expecting a valid JWT token on the
 * Exception Middleware with ProblemDetails
 * Swagger documentation
 * xUnit
+* Doesn't use Entity Framework, Dapper, or Mediator.
 
 ## Solution structure
 
