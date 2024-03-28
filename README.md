@@ -12,6 +12,7 @@ Endpoints that require authentication will be expecting a valid JWT token on the
 * [.NET 8]
 * [PostgreSQL]
 * [Docker]
+* [Minikube]
 
 ### Characteristics
 
